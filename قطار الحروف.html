@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة قطار الحروف - رحلة تعليمية ممتعة للأطفال</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for professional Arabic Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for playful icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow-x: hidden;
+        }
+
+        /* Custom Keyframe Animations for Kids App */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(1deg); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 2s ease-in-out infinite;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px) rotate(-3deg); }
+            75% { transform: translateX(8px) rotate(3deg); }
+        }
+        .animate-wiggle {
+            animation: wiggle 0.4s ease-in-out;
+        }
+
+        @keyframes happy-jump {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-25px) scaleY(1.1) scaleX(0.9); }
+        }
+        .animate-jump {
+            animation: happy-jump 0.6s ease-out;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .confetti {
+            position: absolute;
+            animation: confetti-fall 4s linear infinite;
+        }
+
+        /* Hidden scrollbar but active scrolling */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Train Track Pattern */
+        .train-track {
+            background: repeating-linear-gradient(
+                90deg,
+                #8B4513,
+                #8B4513 15px,
+                #CD853F 15px,
+                #CD853F 30px
+            );
+            height: 16px;
+            width: 100%;
+            position: relative;
+        }
+        .train-track::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: #555;
+        }
+
+        /* Custom Drag Over Style */
+        .drag-hover {
+            border-color: #3b82f6 !important;
+            background-color: #eff6ff !important;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-cyan-100 via-sky-200 to-emerald-100 min-h-screen relative flex flex-col justify-between overflow-hidden">
+
+    <!-- Background Elements (Clouds, Hills) -->
+    <div class="absolute inset-0 pointer-events-none z-0">
+        <!-- Clouds -->
+        <div class="absolute top-10 left-10 opacity-70 animate-float" style="animation-delay: 0s;">
+            <i class="fa-solid fa-cloud text-white text-5xl"></i>
+        </div>
+        <div class="absolute top-24 right-20 opacity-60 animate-float" style="animation-delay: 1.5s;">
+            <i class="fa-solid fa-cloud text-white text-7xl"></i>
+        </div>
+        <div class="absolute top-8 right-1/3 opacity-80 animate-float" style="animation-delay: 3s;">
+            <i class="fa-solid fa-cloud text-white text-4xl"></i>
+        </div>
+        <!-- Hills in the background bottom -->
+        <div class="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-emerald-300 to-transparent opacity-40 rounded-t-full transform translate-y-20"></div>
+    </div>
+
+    <!-- Main UI Container -->
+    <div class="relative z-10 w-full max-w-5xl mx-auto px-4 py-4 flex-grow flex flex-col justify-between">
+        
+        <!-- Header: Standard Kids Dashboard (Hidden on Welcome Screen) -->
+        <header id="game-header" class="hidden flex justify-between items-center bg-white/80 backdrop-blur-md p-3 rounded-2xl shadow-lg border border-white/40 mb-4 animate-float">
+            <div class="flex items-center gap-3">
+                <button onclick="goToWelcome()" class="bg-rose-500 hover:bg-rose-600 text-white font-bold p-3 rounded-xl shadow-md transform active:scale-95 transition-all text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-house"></i>
+                    <span>الرئيسية</span>
+                </button>
+                <div class="bg-yellow-400 text-amber-900 font-extrabold px-4 py-2 rounded-xl flex items-center gap-2 shadow-inner text-sm md:text-base">
+                    <span>المستوى:</span>
+                    <span id="level-indicator">1</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="bg-amber-100 border border-amber-300 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-sm">
+                    <span class="text-xs text-amber-800 font-bold">الميداليات:</span>
+                    <div id="medals-container" class="flex gap-1 text-amber-500">
+                        <!-- Medals added dynamically -->
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2 bg-emerald-500 text-white font-black px-4 py-2 rounded-xl shadow-md">
+                    <i class="fa-solid fa-star text-yellow-300 text-lg animate-pulse"></i>
+                    <span id="stars-count" class="text-lg">0</span>
+                </div>
+                
+                <button id="sound-toggle-btn" onclick="toggleMute()" class="bg-sky-500 hover:bg-sky-600 text-white p-3 rounded-xl shadow-md text-sm transition-all transform active:scale-95">
+                    <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Screen Content -->
+        <main class="flex-grow flex flex-col justify-center items-center">
+            
+            <!-- 1. Welcome Screen -->
+            <div id="screen-welcome" class="w-full max-w-md bg-white/90 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-4 border-yellow-400 text-center flex flex-col items-center gap-6 animate-float relative">
+                <div class="absolute -top-14">
+                    <!-- Cute Train Engine SVG Icon -->
+                    <div class="w-28 h-28 bg-gradient-to-tr from-sky-400 to-indigo-500 rounded-3xl border-4 border-white flex items-center justify-center shadow-xl animate-bounce">
+                        <i class="fa-solid fa-train-subway text-white text-5xl"></i>
+                    </div>
+                </div>
+                
+                <h1 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 mt-12 select-none tracking-wide">
+                    قطار الحُروف
+                </h1>
+                
+                <p class="text-lg text-slate-700 font-bold bg-amber-50 px-4 py-2 rounded-xl border border-amber-200">
+                    رتب حروف لغتنا الجميلة في عربات القطار الملونة! 🚂✨
+                </p>
+                
+                <!-- Character Introduction in Welcome -->
+                <div class="flex items-center gap-3 bg-indigo-50 p-3 rounded-2xl border border-indigo-100 w-full">
+                    <!-- Tiny Arnoub Conductor Mascot -->
+                    <div id="welcome-mascot" class="w-16 h-16 shrink-0"></div>
+                    <div class="text-right">
+                        <h4 class="font-bold text-indigo-900 text-sm">القائد أرنوب يرحب بك:</h4>
+                        <p class="text-xs text-indigo-700 leading-relaxed">أهلاً بك يا بطل! أنا صديقك أرنوب، هيا نساعد قطارنا على السير بترتيب الحروف بشكل صحيح!</p>
+                    </div>
+                </div>
+
+                <!-- Input Name for Certificate -->
+                <div class="w-full text-right">
+                    <label class="block text-slate-700 font-bold mb-1 text-sm">اسم البطل الصغير:</label>
+                    <input type="text" id="player-name-input" value="مستكشف الحروف" placeholder="اكتب اسمك هنا..." class="w-full text-center text-lg font-bold p-3 rounded-xl border-2 border-indigo-200 focus:border-indigo-500 focus:outline-none bg-white shadow-inner" maxlength="25">
+                </div>
+
+                <div class="w-full flex flex-col gap-3">
+                    <button onclick="startGame()" class="w-full bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-500 hover:to-green-600 text-white font-black text-2xl py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transform active:scale-95 transition-all animate-pulse-slow">
+                        ابدأ الرِّحلة! 🚀
+                    </button>
+                    
+                    <button onclick="showInstructions()" class="text-indigo-600 hover:text-indigo-800 font-bold text-sm underline">
+                        كيف نلعب قطار الحروف؟
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. Play Screen -->
+            <div id="screen-play" class="hidden w-full flex flex-col justify-between items-center gap-4">
+                
+                <!-- Conductor Bunny & Speech Bubble -->
+                <div class="w-full max-w-3xl flex items-end gap-3 md:gap-4 mb-2">
+                    <!-- Mascot Container -->
+                    <div id="play-mascot-container" class="w-20 h-20 md:w-28 md:h-28 shrink-0 relative transition-transform duration-500 cursor-pointer" onclick="speakCurrentInstruction()">
+                        <!-- Arnoub SVG Conductor Mascot dynamic state -->
+                        <div id="arnoub-avatar" class="w-full h-full"></div>
+                        <!-- Replay Speech Icon -->
+                        <div class="absolute bottom-0 right-0 bg-yellow-400 text-amber-900 border-2 border-white rounded-full p-1.5 shadow-md flex items-center justify-center text-xs animate-bounce">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Balloon Speech Bubble -->
+                    <div class="flex-grow bg-white border-2 border-indigo-100 p-3 md:p-4 rounded-3xl rounded-br-none shadow-md text-right relative">
+                        <div class="absolute bottom-2 -right-2.5 w-4 h-4 bg-white border-b-2 border-r-2 border-indigo-100 transform rotate-45"></div>
+                        <h3 class="font-extrabold text-indigo-900 text-sm md:text-base mb-1" id="mascot-title">القائد أرنوب:</h3>
+                        <p class="text-slate-700 text-xs md:text-sm font-bold leading-relaxed" id="speech-bubble-text">
+                            بانتظار بدء التحدي الفعال...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Train Track & Carriage Container Area -->
+                <div class="w-full bg-sky-300/30 border border-white/20 p-4 md:p-6 rounded-3xl shadow-inner relative flex flex-col justify-end min-h-[160px] md:min-h-[200px] overflow-hidden">
+                    
+                    <!-- Background Scenery behind the train -->
+                    <div class="absolute inset-x-0 top-0 h-16 pointer-events-none flex justify-between px-10 opacity-60">
+                        <i class="fa-solid fa-tree text-emerald-400 text-3xl self-end"></i>
+                        <i class="fa-solid fa-tree text-emerald-300 text-4xl self-end"></i>
+                        <i class="fa-solid fa-tree text-emerald-500 text-2xl self-end"></i>
+                    </div>
+
+                    <!-- Scrollable Train Frame -->
+                    <div class="w-full overflow-x-auto no-scrollbar pb-3 flex justify-center items-end" id="train-viewport">
+                        <div class="flex items-end gap-2 flex-row-reverse" id="train-assembly">
+                            <!-- SVG Train Engine first (Right-to-Left orientation!) -->
+                            <div class="w-24 md:w-32 flex-shrink-0 flex flex-col items-center select-none" id="train-engine">
+                                <!-- Customized Colorful Train Engine SVG -->
+                                <svg id="svg-engine" class="w-full h-auto drop-shadow-lg transition-all duration-500" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Cabin -->
+                                    <rect x="15" y="20" width="40" height="40" rx="4" fill="#ef4444" />
+                                    <!-- Cabin Roof -->
+                                    <path d="M10 20 L60 20 L50 10 L20 10 Z" fill="#b91c1c" />
+                                    <!-- Window -->
+                                    <rect x="25" y="28" width="20" height="15" rx="2" fill="#bae6fd" stroke="#0284c7" stroke-width="2" />
+                                    <!-- Front Boiler -->
+                                    <rect x="55" y="30" width="35" height="30" rx="3" fill="#3b82f6" />
+                                    <!-- Front Nose -->
+                                    <path d="M90 30 L95 45 L90 60 Z" fill="#eab308" />
+                                    <!-- Chimney / Stack -->
+                                    <rect x="70" y="15" width="10" height="15" fill="#f97316" />
+                                    <ellipse cx="75" cy="15" rx="7" ry="3" fill="#ea580c" />
+                                    <!-- Steam -->
+                                    <circle cx="75" cy="5" r="4" fill="#e2e8f0" class="animate-bounce" style="animation-delay: 0.1s;" />
+                                    <circle cx="82" cy="1" r="2.5" fill="#f1f5f9" class="animate-bounce" style="animation-delay: 0.4s;" />
+                                    <!-- Base Frame -->
+                                    <rect x="10" y="55" width="85" height="10" rx="3" fill="#475569" />
+                                    <!-- Headlight -->
+                                    <path d="M92 38 L99 32 L99 48 Z" fill="#fbbf24" class="animate-pulse" />
+                                    <!-- Wheels -->
+                                    <circle cx="28" cy="65" r="9" fill="#1e293b" stroke="#94a3b8" stroke-width="2" />
+                                    <circle cx="28" cy="65" r="4" fill="#e2e8f0" />
+                                    <circle cx="50" cy="65" r="9" fill="#1e293b" stroke="#94a3b8" stroke-width="2" />
+                                    <circle cx="50" cy="65" r="4" fill="#e2e8f0" />
+                                    <circle cx="78" cy="65" r="9" fill="#1e293b" stroke="#94a3b8" stroke-width="2" />
+                                    <circle cx="78" cy="65" r="4" fill="#e2e8f0" />
+                                    <!-- Connection coupler -->
+                                    <rect x="0" y="58" width="10" height="4" fill="#475569" />
+                                </svg>
+                                <span class="text-xs text-rose-600 font-extrabold select-none bg-rose-50 px-2 py-0.5 rounded-full mt-1 border border-rose-100">بطل الحروف</span>
+                            </div>
+
+                            <!-- Dynamic Carriages go here -->
+                        </div>
+                    </div>
+
+                    <!-- Train Track Graphics -->
+                    <div class="train-track rounded-full"></div>
+                </div>
+
+                <!-- Letter Pool Selector (Where child drags/taps letters from) -->
+                <div class="w-full flex flex-col items-center gap-3">
+                    <p class="text-indigo-900 font-bold text-sm bg-indigo-50/50 py-1.5 px-4 rounded-full border border-indigo-100">
+                        اختر الحرف المناسب بالضغط عليه أو بسحبه إلى العربة الفارغة:
+                    </p>
+                    
+                    <!-- Letters pool wrapper -->
+                    <div id="letter-pool" class="flex flex-wrap justify-center gap-3 md:gap-4 p-4 bg-white/70 backdrop-blur-md rounded-2xl shadow-md border border-white/40 max-w-2xl w-full">
+                        <!-- Dynamic letter cards -->
+                    </div>
+                </div>
+
+                <!-- Footer Operations / Interactive Buttons -->
+                <div class="w-full flex justify-between items-center mt-2 max-w-3xl">
+                    <button onclick="skipLevel()" class="text-slate-500 hover:text-slate-700 font-bold text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-200 transition-all">
+                        تخطي المستوى ⏭️
+                    </button>
+                    <button onclick="speakCurrentInstruction()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-extrabold px-5 py-2.5 rounded-2xl shadow-sm border border-indigo-200 flex items-center gap-2 transform active:scale-95 transition-all text-sm">
+                        <i class="fa-solid fa-volume-high text-indigo-600"></i>
+                        <span>أعد نطق التعليمات 🗣️</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3. Win / Celebration Screen -->
+            <div id="screen-win" class="hidden w-full max-w-lg bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-4 border-emerald-400 text-center flex flex-col items-center gap-6 animate-float relative">
+                
+                <!-- Confetti Anchor inside container -->
+                <div id="confetti-container" class="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none"></div>
+
+                <div class="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center text-white text-5xl shadow-lg -mt-16 border-4 border-white animate-bounce">
+                    🏆
+                </div>
+
+                <h1 class="text-3xl md:text-4xl font-black text-emerald-600">
+                    رَائع! أنت بطل الحُرُوف! 🎉
+                </h1>
+
+                <p class="text-slate-700 font-bold leading-relaxed text-sm md:text-base">
+                    لقد قدت قطار الحروف بذكاء ورتبت جميع مستويات الحروف من الألف إلى الياء بكل تفوق!
+                </p>
+
+                <!-- Medal Trophy Case display -->
+                <div class="bg-amber-50 border border-amber-200 p-3 rounded-2xl w-full">
+                    <h4 class="font-extrabold text-amber-900 text-xs md:text-sm mb-2">ميداليات الشرف التي حصلت عليها:</h4>
+                    <div class="flex justify-center gap-2 text-2xl" id="final-medals">
+                        🏆 🥇 🥈 🥉 🎖️ 🏅
+                    </div>
+                </div>
+
+                <!-- Certificate of Achievement Wrapper -->
+                <div id="certificate" class="w-full border-4 border-double border-amber-500 p-4 bg-amber-50/30 rounded-2xl relative select-text shadow-sm">
+                    <div class="absolute inset-0 pointer-events-none border border-amber-300 m-1 rounded-xl"></div>
+                    <h3 class="font-extrabold text-amber-800 text-lg mb-1">شهادة تميُّز وتفوُّق</h3>
+                    <p class="text-xs text-amber-700 mb-3">تُمنح هذه الشهادة بكل فخر للبطل الصغير:</p>
+                    <div id="certificate-name" class="font-black text-2xl text-indigo-700 my-2 select-all decoration-wavy underline decoration-yellow-400">
+                        مستكشف الحروف
+                    </div>
+                    <p class="text-xs text-amber-900 font-bold leading-relaxed mt-2">
+                        لاجتيازه رحلة قطار الحروف كاملة وترتيب الحروف العربية باحترافية تامة! 🌟🚂
+                    </p>
+                </div>
+
+                <!-- Control Buttons for Win -->
+                <div class="w-full flex flex-col gap-2">
+                    <button onclick="printCertificate()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-black py-3 rounded-xl shadow-md flex items-center justify-center gap-2 transform active:scale-95 transition-all text-sm md:text-base">
+                        <i class="fa-solid fa-print"></i>
+                        <span>طباعة الشهادة 🖨️</span>
+                    </button>
+                    
+                    <button onclick="restartGame()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black py-3.5 rounded-xl shadow-md transform active:scale-95 transition-all text-sm md:text-base">
+                        العب مرة أخرى 🔄
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Custom Instructions Modal (Overlay) -->
+        <div id="instructions-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl border-4 border-indigo-400 max-w-md w-full p-6 text-right relative animate-float">
+                <button onclick="hideInstructions()" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600 text-2xl font-bold">
+                    &times;
+                </button>
+                <h3 class="text-xl font-black text-indigo-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-question text-indigo-500"></i>
+                    <span>طريقة اللعب البسيطة</span>
+                </h3>
+                <ul class="space-y-3 text-slate-700 font-semibold text-sm leading-relaxed">
+                    <li class="flex items-start gap-2">
+                        <span class="bg-indigo-100 text-indigo-800 rounded-full w-6 h-6 shrink-0 flex items-center justify-center text-xs font-black">١</span>
+                        <span>يظهر قطار في وسط الشاشة به عربات ملوّنة وفارغة.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="bg-indigo-100 text-indigo-800 rounded-full w-6 h-6 shrink-0 flex items-center justify-center text-xs font-black">٢</span>
+                        <span>شاهد الحروف الموجودة أسفل القطار، ثم اسحب الحرف الصحيح وضعه في العربة الفارغة المناسبة، أو بكل بساطة اضغط على الحرف مباشرة!</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="bg-indigo-100 text-indigo-800 rounded-full w-6 h-6 shrink-0 flex items-center justify-center text-xs font-black">٣</span>
+                        <span>عند وضع الحرف الصحيح ستسمع نطق الحرف وصوت تشجيع وتحصل على نجمة مبهجة!</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="bg-indigo-100 text-indigo-800 rounded-full w-6 h-6 shrink-0 flex items-center justify-center text-xs font-black">٤</span>
+                        <span>كلما أكملت عربات المستوى تنتقل لمستوى جديد وتفتح لون قطار مبهر جديد حتى تصل لمحطة التخرج!</span>
+                    </li>
+                </ul>
+                <button onclick="hideInstructions()" class="mt-6 w-full bg-indigo-500 hover:bg-indigo-600 text-white font-black py-2.5 rounded-xl shadow-md">
+                    فهمت ذلك! 👍
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Javascript Section -->
+    <script>
+        // Web Audio API Synthesizer Object to generate beautiful kid-friendly SFX completely programmatically
+        const SoundFX = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+            playClick() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.1);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            },
+            playSuccess() {
+                this.init();
+                const now = this.ctx.currentTime;
+                // Standard Playful Joy Arpeggio
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                    gain.gain.setValueAtTime(0.15, now + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.2);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.25);
+                });
+            },
+            playWrong() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            },
+            playWhistle() {
+                this.init();
+                const now = this.ctx.currentTime;
+                // Simulate train whistle beating (two close oscillators)
+                const osc1 = this.ctx.createOscillator();
+                const osc2 = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(880, now);
+                osc1.frequency.linearRampToValueAtTime(920, now + 0.5);
+                
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(885, now);
+                osc2.frequency.linearRampToValueAtTime(925, now + 0.5);
+                
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0.15, now + 0.4);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc1.start(now);
+                osc2.start(now);
+                osc1.stop(now + 0.6);
+                osc2.stop(now + 0.6);
+            },
+            playFanfare() {
+                this.init();
+                const now = this.ctx.currentTime;
+                // Heroic level completed fanfare
+                const chords = [392.00, 523.25, 659.25, 783.99, 1046.50]; // G4, C5, E5, G5, C6
+                chords.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now);
+                    osc.frequency.linearRampToValueAtTime(freq * 1.01, now + 1.2);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 1.25);
+                });
+            }
+        };
+
+        // Text Speech Synthesis Manager with clean Arabic Voice targeting
+        const VoiceEngine = {
+            muted: false,
+            speaking: false,
+            speak(text) {
+                if (this.muted) return;
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel(); // Stop anything playing immediately
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'ar-SA';
+                    utterance.rate = 0.85; // slightly slower for children comprehension
+                    utterance.pitch = 1.1; // Friendly and slightly higher pitch
+                    
+                    // Attempt to lock an Arabic speech synthesis voice
+                    const voices = window.speechSynthesis.getVoices();
+                    const arVoice = voices.find(voice => voice.lang.includes('ar'));
+                    if (arVoice) utterance.voice = arVoice;
+                    
+                    this.speaking = true;
+                    utterance.onend = () => { this.speaking = false; };
+                    utterance.onerror = () => { this.speaking = false; };
+                    window.speechSynthesis.speak(utterance);
+                }
+            }
+        };
+
+        // Let the voices pool load inside browser safely
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => {};
+        }
+
+        // Mascot Conductor Rabbit SVGs with states (happy, thinking, encourage)
+        const MascotTemplates = {
+            getSVG(state) {
+                let expression = '';
+                if (state === 'happy') {
+                    expression = `
+                        <!-- Cheerful Wide Open Smile & Eyes -->
+                        <ellipse cx="40" cy="50" rx="3.5" ry="5" fill="#1e293b"/>
+                        <ellipse cx="60" cy="50" rx="3.5" ry="5" fill="#1e293b"/>
+                        <circle cx="41.5" cy="48" r="1.5" fill="#ffffff"/>
+                        <circle cx="61.5" cy="48" r="1.5" fill="#ffffff"/>
+                        <!-- Pink Happy Cheeks -->
+                        <circle cx="34" cy="56" r="4" fill="#f43f5e" opacity="0.6"/>
+                        <circle cx="66" cy="56" r="4" fill="#f43f5e" opacity="0.6"/>
+                        <!-- Big Smile -->
+                        <path d="M44 58 Q50 64 56 58" stroke="#1e293b" stroke-width="2.5" fill="#e11d48" stroke-linecap="round"/>
+                        <path d="M49 61.5 L51 61.5" stroke="#ffffff" stroke-width="1.5"/>
+                    `;
+                } else if (state === 'thinking') {
+                    expression = `
+                        <!-- Curious Looking up expression -->
+                        <path d="M37 51 L43 49" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M57 49 L63 51" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
+                        <ellipse cx="41" cy="51" rx="3" ry="4.5" fill="#1e293b"/>
+                        <ellipse cx="59" cy="51" rx="3" ry="4.5" fill="#1e293b"/>
+                        <circle cx="42" cy="49" r="1" fill="#ffffff"/>
+                        <circle cx="60" cy="49" r="1" fill="#ffffff"/>
+                        <!-- Soft mouth -->
+                        <path d="M47 59 Q50 56 53 59" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    `;
+                } else { // encourage / proud
+                    expression = `
+                        <!-- Proud cheerful wink -->
+                        <!-- Left eye open -->
+                        <ellipse cx="40" cy="50" rx="3.5" ry="5" fill="#1e293b"/>
+                        <circle cx="41.5" cy="48" r="1.5" fill="#ffffff"/>
+                        <!-- Right eye winking -->
+                        <path d="M56 52 Q60 46 64 52" stroke="#1e293b" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        <!-- Happy cheeks -->
+                        <circle cx="34" cy="56" r="4" fill="#f43f5e" opacity="0.6"/>
+                        <circle cx="66" cy="56" r="4" fill="#f43f5e" opacity="0.6"/>
+                        <!-- Big Open Mouth -->
+                        <path d="M45 57 Q50 63 55 57 Z" fill="#b91c1c" stroke="#1e293b" stroke-width="2"/>
+                    `;
+                }
+
+                // Complete cute Conductor Rabbit SVG Structure
+                return `
+                    <svg class="w-full h-full drop-shadow-md" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Ears -->
+                        <g>
+                            <!-- Left Ear -->
+                            <rect x="28" y="5" width="10" height="35" rx="5" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="2" />
+                            <rect x="31" y="10" width="4" height="25" rx="2" fill="#fda4af" />
+                            <!-- Right Ear (Slightly tilted for cuteness) -->
+                            <g transform="rotate(10, 65, 20)">
+                                <rect x="60" y="5" width="10" height="35" rx="5" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="2" />
+                                <rect x="63" y="10" width="4" height="25" rx="2" fill="#fda4af" />
+                            </g>
+                        </g>
+                        <!-- Face Base -->
+                        <circle cx="50" cy="55" r="23" fill="#ffffff" stroke="#e2e8f0" stroke-width="2" />
+                        <!-- Inner expression details -->
+                        ${expression}
+                        <!-- Cute Nose -->
+                        <polygon points="48,54 52,54 50,56" fill="#f43f5e" stroke="#f43f5e" stroke-width="1"/>
+                        <!-- Mustache lines -->
+                        <line x1="28" y1="56" x2="20" y2="55" stroke="#cbd5e1" stroke-width="1.5"/>
+                        <line x1="28" y1="58" x2="19" y2="59" stroke="#cbd5e1" stroke-width="1.5"/>
+                        <line x1="72" y1="56" x2="80" y2="55" stroke="#cbd5e1" stroke-width="1.5"/>
+                        <line x1="72" y1="58" x2="81" y2="59" stroke="#cbd5e1" stroke-width="1.5"/>
+                        <!-- Conductor Cap -->
+                        <path d="M32 37 C 32 30, 68 30, 68 37 Z" fill="#3b82f6"/>
+                        <!-- Cap Peak -->
+                        <path d="M30 37 Q50 41 70 37 L72 39 Q50 44 28 39 Z" fill="#1e3a8a"/>
+                        <!-- Gold Badge on Cap -->
+                        <circle cx="50" cy="33" r="4.5" fill="#fbbf24"/>
+                        <path d="M50 30.5 L51 32 L52.5 32 L51.5 33 L52 34.5 L50 33.5 L48 34.5 L48.5 33 L47.5 32 L49 32 Z" fill="#d97706"/>
+                    </svg>
+                `;
+            }
+        };
+
+        // Render Initial Mascots
+        document.getElementById('welcome-mascot').innerHTML = MascotTemplates.getSVG('happy');
+        document.getElementById('arnoub-avatar').innerHTML = MascotTemplates.getSVG('happy');
+
+
+        // Global Game Configuration and State
+        const LevelsConfig = {
+            1: {
+                title: "الحروف الأساسية",
+                letters: ["أ", "ب", "ت"],
+                trainSkin: "classic",
+                color: "from-sky-500 to-indigo-500"
+            },
+            2: {
+                title: "مجموعة الثاء",
+                letters: ["أ", "ب", "ت", "ث"],
+                trainSkin: "jungle",
+                color: "from-emerald-500 to-teal-500"
+            },
+            3: {
+                title: "مجموعة الجيم والذال",
+                letters: ["ج", "ح", "خ", "د", "ذ"],
+                trainSkin: "space",
+                color: "from-purple-500 to-indigo-600"
+            },
+            4: {
+                title: "مجموعة الراء والضاد",
+                letters: ["ر", "ز", "س", "ش", "ص", "ض"],
+                trainSkin: "desert",
+                color: "from-amber-500 to-orange-500"
+            },
+            5: {
+                title: "رحلة الحروف المخلَّطة",
+                letters: ["ط", "ظ", "ع", "غ"],
+                trainSkin: "candy",
+                color: "from-pink-500 to-rose-500"
+            },
+            6: {
+                title: "تحدي الحروف الناقصة",
+                // This is a special level. We render sequence with blanks.
+                // We will programmatically setup some empty carriages and some prefilled ones.
+                letters: ["أ", "ب", "ت", "ث"], // Challenge setup: Wagon 0 (أ) filled, Wagon 1 (ب) blank, Wagon 2 (ت) filled, Wagon 3 (ث) blank.
+                isReviewChallenge: true,
+                trainSkin: "golden-hero",
+                color: "from-yellow-500 to-amber-600"
+            }
+        };
+
+        // Full Letter Names dictionary for Voice TTS pronunciation assistance
+        const LetterNames = {
+            "أ": "ألف", "ب": "باء", "ت": "تاء", "ث": "ثاء",
+            "ج": "جيم", "ح": "حاء", "خ": "خاء", "د": "دال", "ذ": "ذال",
+            "ر": "راء", "ز": "زاي", "س": "سين", "ش": "شين", "ص": "صاد", "ض": "ضاد",
+            "ط": "طاء", "ظ": "ظاء", "ع": "عين", "غ": "غين"
+        };
+
+        const EncouragingPhrases = [
+            "أحسنت يا بطل! هذا هو الحرف الصحيح.",
+            "رائع جداً! ترتيبك ممتاز.",
+            "مذهل! لقد وضعت الحرف في مكانه المناسب.",
+            "أنت عبقري! الحرف في مكانه الصحيح.",
+            "يا لك من ذكي! استمر في التقدم."
+        ];
+
+        let GameState = {
+            playerName: "مستكشف الحروف",
+            currentLevel: 1,
+            stars: 0,
+            medals: 0,
+            levelWagons: [], // Representation of each carriage in current active level
+            letterPool: [],  // Draggable/Tappable letters below
+            selectedLetterToPlace: null, // Touch helper: clicked letter ready to place on next touched empty wagon
+            currentLetterToPlaceIndex: 0 // Track sequential target if auto-filling or hint-guiding
+        };
+
+        // Global UI sound helper
+        function toggleMute() {
+            VoiceEngine.muted = !VoiceEngine.muted;
+            const icon = document.getElementById('sound-icon');
+            if (VoiceEngine.muted) {
+                icon.className = "fa-solid fa-volume-xmark";
+                document.getElementById('sound-toggle-btn').classList.replace('bg-sky-500', 'bg-slate-400');
+            } else {
+                icon.className = "fa-solid fa-volume-high";
+                document.getElementById('sound-toggle-btn').classList.replace('bg-slate-400', 'bg-sky-500');
+                SoundFX.playClick();
+            }
+        }
+
+        // Instructions controls
+        function showInstructions() {
+            SoundFX.playClick();
+            document.getElementById('instructions-modal').classList.remove('hidden');
+        }
+        function hideInstructions() {
+            SoundFX.playClick();
+            document.getElementById('instructions-modal').classList.add('hidden');
+        }
+
+        // Start Game from Welcome Screen
+        function startGame() {
+            const nameVal = document.getElementById('player-name-input').value.trim();
+            if (nameVal) {
+                GameState.playerName = nameVal;
+            }
+            SoundFX.playClick();
+            SoundFX.playWhistle();
+            
+            // Switch screens
+            document.getElementById('screen-welcome').classList.add('hidden');
+            document.getElementById('game-header').classList.remove('hidden');
+            document.getElementById('screen-play').classList.remove('hidden');
+
+            // Set state
+            GameState.currentLevel = 1;
+            GameState.stars = 0;
+            GameState.medals = 0;
+            
+            document.getElementById('stars-count').innerText = "0";
+            document.getElementById('medals-container').innerHTML = '';
+
+            loadLevel(1);
+
+            // Intro TTS Greeting
+            setTimeout(() => {
+                VoiceEngine.speak(`مرحباً بك يا بطل ${GameState.playerName} في لعبة قطار الحروف. هيا بنا نرتب الحروف معاً!`);
+            }, 800);
+        }
+
+        // Go back to Home / Welcome screen safely
+        function goToWelcome() {
+            SoundFX.playClick();
+            document.getElementById('game-header').classList.add('hidden');
+            document.getElementById('screen-play').classList.add('hidden');
+            document.getElementById('screen-win').classList.add('hidden');
+            document.getElementById('screen-welcome').classList.remove('hidden');
+        }
+
+        // Restart overall game loop
+        function restartGame() {
+            SoundFX.playClick();
+            goToWelcome();
+        }
+
+        // Skip to next level instantly (Admin/Teacher or frustrated kid shortcut)
+        function skipLevel() {
+            SoundFX.playClick();
+            if (GameState.currentLevel < 6) {
+                earnMedal();
+                loadLevel(GameState.currentLevel + 1);
+            } else {
+                showFinalCelebration();
+            }
+        }
+
+        // Playful Arnoub face feedback
+        function updateMascotFace(state, duration = 2000) {
+            const avatar = document.getElementById('arnoub-avatar');
+            if (avatar) {
+                avatar.innerHTML = MascotTemplates.getSVG(state);
+                avatar.classList.add('animate-jump');
+                setTimeout(() => {
+                    avatar.classList.remove('animate-jump');
+                }, 600);
+
+                if (state !== 'thinking') {
+                    setTimeout(() => {
+                        avatar.innerHTML = MascotTemplates.getSVG('thinking');
+                    }, duration);
+                }
+            }
+        }
+
+        // Speak the current instructions/phrase
+        function speakCurrentInstruction() {
+            const currentLevelData = LevelsConfig[GameState.currentLevel];
+            let instructionText = "";
+            
+            if (currentLevelData.isReviewChallenge) {
+                instructionText = "هذا هو التحدي الأخير! ضع الحروف المفقودة في مكانها الصحيح لتكمل القطار الذهبي!";
+            } else {
+                // Find first empty wagon's expected letter
+                const firstEmptyWagon = GameState.levelWagons.find(w => !w.placedLetter);
+                if (firstEmptyWagon) {
+                    const letterName = LetterNames[firstEmptyWagon.expectedLetter] || firstEmptyWagon.expectedLetter;
+                    instructionText = `ضع حرف ${letterName} في العربة المناسبة يا بطل.`;
+                } else {
+                    instructionText = "رائع! كل الحروف في مكانها الصحيح. اضغط على تخطي أو انتظر القطار لينطلق!";
+                }
+            }
+            
+            // Show inside speech bubble text visually
+            document.getElementById('speech-bubble-text').innerText = instructionText;
+            updateMascotFace('thinking', 2000);
+            VoiceEngine.speak(instructionText);
+        }
+
+        // Main Level Loader
+        function loadLevel(levelNum) {
+            GameState.currentLevel = levelNum;
+            document.getElementById('level-indicator').innerText = levelNum;
+            
+            const levelData = LevelsConfig[levelNum];
+            if (!levelData) {
+                showFinalCelebration();
+                return;
+            }
+
+            // Adjust train engine color theme according to skin settings programmatically
+            const engineSVG = document.getElementById('svg-engine');
+            if (engineSVG) {
+                const bodyColors = {
+                    "classic": "#ef4444",      // red
+                    "jungle": "#10b981",       // emerald
+                    "space": "#8b5cf6",        // purple
+                    "desert": "#f59e0b",       // amber
+                    "candy": "#ec4899",        // pink
+                    "golden-hero": "#fbbf24"   // gold
+                };
+                const boilerColors = {
+                    "classic": "#3b82f6",
+                    "jungle": "#06b6d4",
+                    "space": "#6366f1",
+                    "desert": "#f97316",
+                    "candy": "#f43f5e",
+                    "golden-hero": "#f59e0b"
+                };
+                
+                engineSVG.querySelector('rect[fill="#ef4444"]')?.setAttribute('fill', bodyColors[levelData.trainSkin] || "#ef4444");
+                engineSVG.querySelector('rect[fill="#3b82f6"]')?.setAttribute('fill', boilerColors[levelData.trainSkin] || "#3b82f6");
+            }
+
+            // Setup level target structures
+            GameState.levelWagons = [];
+            
+            if (levelData.isReviewChallenge) {
+                // Special level setup for Level 6 review challenge
+                // Level order: أ, ب, ت, ث
+                // Pre-fill Wagon 0 ('أ') and Wagon 2 ('ت')
+                // Let Child fill Wagon 1 ('ب') and Wagon 3 ('ث')
+                const seq = ["أ", "ب", "ت", "ث"];
+                seq.forEach((letChar, idx) => {
+                    const prefilled = (idx === 0 || idx === 2);
+                    GameState.levelWagons.push({
+                        id: idx,
+                        expectedLetter: letChar,
+                        placedLetter: prefilled ? letChar : null,
+                        isPreFilled: prefilled
+                    });
+                });
+                
+                // Letter pool available for review (includes some distractors to make it fun but simple!)
+                GameState.letterPool = ["ب", "ث", "ج"]; // 'ج' is a cute distractor
+            } else {
+                // Standard level setup: everything empty
+                levelData.letters.forEach((letChar, idx) => {
+                    GameState.levelWagons.push({
+                        id: idx,
+                        expectedLetter: letChar,
+                        placedLetter: null,
+                        isPreFilled: false
+                    });
+                });
+
+                // Prepare pool by shuffling the target letters list
+                GameState.letterPool = [...levelData.letters].sort(() => Math.random() - 0.5);
+            }
+
+            GameState.selectedLetterToPlace = null;
+            
+            // Re-render
+            renderWagons();
+            renderLetterPool();
+
+            // Speak greeting to level
+            setTimeout(() => {
+                const welcomePhrase = `لقد وصلنا للمستوى ${levelNum}: ${levelData.title}. هيا بنا نرتب القطار!`;
+                document.getElementById('speech-bubble-text').innerText = welcomePhrase;
+                updateMascotFace('happy', 2500);
+                VoiceEngine.speak(welcomePhrase);
+            }, 800);
+        }
+
+        // Render Wagons from right to left (RTL Flow)
+        function renderWagons() {
+            const assembly = document.getElementById('train-assembly');
+            
+            // Remove previous carriages (keep engine)
+            const oldCarriages = assembly.querySelectorAll('.carriage-item');
+            oldCarriages.forEach(el => el.remove());
+
+            // Build new carriage structures
+            GameState.levelWagons.forEach((wagon) => {
+                const carNode = document.createElement('div');
+                carNode.className = "carriage-item w-20 md:w-28 flex-shrink-0 flex flex-col items-center select-none transition-all duration-300";
+                carNode.dataset.wagonId = wagon.id;
+                
+                // Color mapping for carriage body based on level index
+                const colors = [
+                    'border-amber-400 bg-amber-500/10',
+                    'border-pink-400 bg-pink-500/10',
+                    'border-emerald-400 bg-emerald-500/10',
+                    'border-sky-400 bg-sky-500/10',
+                    'border-purple-400 bg-purple-500/10',
+                    'border-teal-400 bg-teal-500/10'
+                ];
+                const borderBgClass = colors[wagon.id % colors.length];
+
+                // Check fill state
+                const isFilled = wagon.placedLetter !== null;
+                const letterDisplay = isFilled ? wagon.placedLetter : "?";
+                const textOpacityClass = isFilled ? "text-slate-800 scale-110" : "text-slate-300 animate-pulse";
+                const isPreFilledText = wagon.isPreFilled ? "text-amber-600 bg-amber-100" : (isFilled ? "text-emerald-700 bg-emerald-100" : "bg-white");
+
+                carNode.innerHTML = `
+                    <!-- Link coupler bar -->
+                    <div class="w-full flex justify-end pr-2 -mb-1">
+                        <div class="w-6 h-2 bg-slate-400 rounded-full"></div>
+                    </div>
+                    <!-- Main Wooden Box Carriage -->
+                    <div class="wagon-box w-full aspect-square border-4 rounded-2xl flex flex-col justify-between items-center p-1.5 relative shadow-md transition-all duration-300 ${borderBgClass} ${isFilled ? 'bg-white/90 border-emerald-400 scale-100' : 'bg-slate-50 border-dashed border-slate-300'}"
+                         onclick="handleWagonClick(${wagon.id})"
+                         ondragover="handleDragOver(event)"
+                         ondragleave="handleDragLeave(event)"
+                         ondrop="handleDrop(event, ${wagon.id})">
+                        
+                        <!-- Mini Gold Star if correct & filled -->
+                        ${isFilled && !wagon.isPreFilled ? `
+                            <div class="absolute -top-3 -left-3 bg-yellow-400 text-amber-900 w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shadow-md border-2 border-white animate-bounce">
+                                🌟
+                            </div>
+                        ` : ''}
+
+                        <!-- Expected Letter Guide Hint for younger kids in grey -->
+                        ${!isFilled ? `
+                            <span class="absolute top-1 right-2 text-[10px] text-slate-400 font-extrabold">مطلوب: ${wagon.expectedLetter}</span>
+                        ` : ''}
+
+                        <!-- Letter Display -->
+                        <div class="flex-grow flex items-center justify-center w-full">
+                            <span class="text-4xl md:text-5xl font-extrabold tracking-wide transition-all duration-300 select-none ${textOpacityClass}">
+                                ${letterDisplay}
+                            </span>
+                        </div>
+
+                        <!-- Carriage Bottom wheels -->
+                        <div class="w-full flex justify-around mt-1">
+                            <div class="w-5 h-5 bg-slate-800 rounded-full border-2 border-slate-400 shadow-sm"></div>
+                            <div class="w-5 h-5 bg-slate-800 rounded-full border-2 border-slate-400 shadow-sm"></div>
+                        </div>
+                    </div>
+                `;
+
+                // Add to layout (Right-to-Left order since assembly is flex-row-reverse)
+                assembly.appendChild(carNode);
+            });
+        }
+
+        // Render Selection Cards (Letter Pool)
+        function renderLetterPool() {
+            const poolNode = document.getElementById('letter-pool');
+            poolNode.innerHTML = '';
+
+            GameState.letterPool.forEach((letter) => {
+                const card = document.createElement('div');
+                
+                // Color cards differently for interactive playfulness
+                const colors = [
+                    'from-yellow-400 to-amber-500 shadow-amber-300',
+                    'from-sky-400 to-blue-500 shadow-blue-300',
+                    'from-pink-400 to-rose-500 shadow-rose-300',
+                    'from-emerald-400 to-green-500 shadow-green-300',
+                    'from-purple-400 to-indigo-500 shadow-indigo-300'
+                ];
+                const charCodeSum = letter.charCodeAt(0) || 0;
+                const cardColor = colors[charCodeSum % colors.length];
+
+                // Detect if letter is already placed in standard level to hide it
+                // Except in review challenge where duplicate letters can be left
+                const isAlreadyUsed = !LevelsConfig[GameState.currentLevel].isReviewChallenge && 
+                                      GameState.levelWagons.some(w => w.placedLetter === letter);
+
+                if (isAlreadyUsed) {
+                    // Render empty spot or grayed invisible placeholder
+                    card.className = "w-16 h-16 md:w-20 md:h-20 invisible";
+                    poolNode.appendChild(card);
+                    return;
+                }
+
+                const isSelected = GameState.selectedLetterToPlace === letter;
+
+                card.className = `w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br ${cardColor} flex items-center justify-center text-white text-3xl md:text-4xl font-black shadow-lg cursor-grab active:cursor-grabbing transform transition-all duration-150 select-none hover:scale-110 active:scale-95 border-b-4 border-black/20 ${isSelected ? 'ring-4 ring-indigo-500 scale-105' : ''}`;
+                card.draggable = true;
+                card.innerText = letter;
+
+                // Set HTML5 drag transfer data
+                card.ondragstart = (e) => {
+                    e.dataTransfer.setData('text/plain', letter);
+                    // play tap sound
+                    SoundFX.playClick();
+                };
+
+                // Click/Tap assistance flow for toddlers/mobile devices
+                card.onclick = () => {
+                    handleLetterSelect(letter);
+                };
+
+                poolNode.appendChild(card);
+            });
+        }
+
+        // Touch/Click Action Helper: Letter Selected
+        function handleLetterSelect(letter) {
+            SoundFX.playClick();
+            
+            // Speak Letter helper assist
+            const letterName = LetterNames[letter] || letter;
+            VoiceEngine.speak(letterName);
+
+            // Set state
+            GameState.selectedLetterToPlace = letter;
+            
+            // Update UI
+            renderLetterPool();
+
+            // Direct auto placement option: 
+            // If the user clicks a letter, check if it's the next correct letter in sequence to auto-insert, 
+            // making it super fun and non-frustrating for 4-year-olds!
+            const nextEmptyWagon = GameState.levelWagons.find(w => !w.placedLetter);
+            if (nextEmptyWagon && nextEmptyWagon.expectedLetter === letter) {
+                // Happy match! Auto place it with ease
+                setTimeout(() => {
+                    placeLetter(nextEmptyWagon.id, letter);
+                }, 400);
+            } else {
+                // Update speech to tell children what to do with selected letter
+                document.getElementById('speech-bubble-text').innerText = `لقد اخترت حرف ${letterName}! الآن اضغط على العربة الفارغة لتضعه فيها.`;
+                updateMascotFace('encourage', 2000);
+            }
+        }
+
+        // Touch/Click Action Helper: Wagon Selected
+        function handleWagonClick(wagonId) {
+            if (!GameState.selectedLetterToPlace) {
+                // Ask kid to select a letter first
+                SoundFX.playClick();
+                speakCurrentInstruction();
+                return;
+            }
+
+            // Attempt to place selected letter
+            placeLetter(wagonId, GameState.selectedLetterToPlace);
+        }
+
+        // Drag and drop event helpers
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-hover');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-hover');
+        }
+
+        function handleDrop(e, wagonId) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-hover');
+            const letter = e.dataTransfer.getData('text/plain');
+            if (letter) {
+                placeLetter(wagonId, letter);
+            }
+        }
+
+        // Primary Logic: Validate & Place Letter
+        function placeLetter(wagonId, letter) {
+            const wagon = GameState.levelWagons.find(w => w.id === wagonId);
+            if (!wagon) return;
+
+            // If already filled, don't re-trigger
+            if (wagon.placedLetter !== null) return;
+
+            if (wagon.expectedLetter === letter) {
+                // SUCCESS MATCH!
+                wagon.placedLetter = letter;
+                GameState.selectedLetterToPlace = null; // reset touch select state
+
+                // Add visual score rewards
+                GameState.stars += 1;
+                document.getElementById('stars-count').innerText = GameState.stars;
+
+                // Sound Effect
+                SoundFX.playSuccess();
+                
+                // Mascot Cheerful reaction
+                updateMascotFace('happy', 2500);
+
+                // Speak custom congratulatory phrase
+                const randomPhrase = EncouragingPhrases[Math.floor(Math.random() * EncouragingPhrases.length)];
+                const letterName = LetterNames[letter] || letter;
+                const fullCelebrationSpeech = `${randomPhrase} .. حرف ${letterName}.`;
+                
+                document.getElementById('speech-bubble-text').innerText = fullCelebrationSpeech;
+                VoiceEngine.speak(fullCelebrationSpeech);
+
+                // Re-render Game View instantly
+                renderWagons();
+                renderLetterPool();
+
+                // Check if entire level completed successfully
+                checkLevelCompletion();
+
+            } else {
+                // WRONG MATCH FEEDBACK
+                SoundFX.playWrong();
+                
+                // Visual wiggle animation on the error carriage target
+                const carriageNode = document.querySelector(`[data-wagon-id="${wagonId}"] .wagon-box`);
+                if (carriageNode) {
+                    carriageNode.classList.add('animate-wiggle', 'border-rose-400', 'bg-rose-50');
+                    setTimeout(() => {
+                        carriageNode.classList.remove('animate-wiggle', 'border-rose-400', 'bg-rose-50');
+                    }, 500);
+                }
+
+                // Friendly encouragement speech (no penalties!)
+                updateMascotFace('thinking', 2000);
+                const tryAgainPhrase = "حاول مرة أخرى يا بطل، أنت تستطيع!";
+                document.getElementById('speech-bubble-text').innerText = tryAgainPhrase;
+                VoiceEngine.speak(tryAgainPhrase);
+            }
+        }
+
+        // Validate state for Level Completed
+        function checkLevelCompletion() {
+            const levelFinished = GameState.levelWagons.every(w => w.placedLetter !== null);
+            if (levelFinished) {
+                // Earn a level medal
+                earnMedal();
+                
+                // Whistle celebration
+                setTimeout(() => {
+                    SoundFX.playWhistle();
+                    SoundFX.playFanfare();
+                }, 800);
+
+                // Level finished animation transition
+                setTimeout(() => {
+                    // Advance to next level or show victory
+                    if (GameState.currentLevel < 6) {
+                        const levelTransitionText = `رائع! لقد أكملت القطار بأكمله بنجاح! هيا ننتقل للمحطة التالية!`;
+                        document.getElementById('speech-bubble-text').innerText = levelTransitionText;
+                        VoiceEngine.speak(levelTransitionText);
+                        
+                        // Wait a tiny bit then auto load next level
+                        setTimeout(() => {
+                            loadLevel(GameState.currentLevel + 1);
+                        }, 3000);
+                    } else {
+                        showFinalCelebration();
+                    }
+                }, 1500);
+            }
+        }
+
+        // Award and display medals programmatically
+        function earnMedal() {
+            GameState.medals += 1;
+            const medalsContainer = document.getElementById('medals-container');
+            if (medalsContainer) {
+                medalsContainer.innerHTML = '';
+                const totalMedals = Math.min(GameState.medals, 6);
+                for (let i = 0; i < totalMedals; i++) {
+                    medalsContainer.innerHTML += `
+                        <i class="fa-solid fa-medal text-lg animate-bounce" style="animation-delay: ${i * 0.1}s;"></i>
+                    `;
+                }
+            }
+        }
+
+        // Final Win State & Screen Controller
+        function showFinalCelebration() {
+            SoundFX.playWhistle();
+            SoundFX.playFanfare();
+
+            // Hide Play Interface
+            document.getElementById('screen-play').classList.add('hidden');
+            document.getElementById('game-header').classList.add('hidden');
+            
+            // Render Win Screen
+            document.getElementById('screen-win').classList.remove('hidden');
+
+            // Apply certificate name
+            document.getElementById('certificate-name').innerText = GameState.playerName;
+
+            // Voice Celebration
+            VoiceEngine.speak(`مبارك لك يا بطل ${GameState.playerName}! لقد رتبت جميع الحروف العربية بنجاح وحصلت على لقب بطل الحروف!`);
+
+            // Populate Final Trophy Display
+            const finalMedalsNode = document.getElementById('final-medals');
+            finalMedalsNode.innerHTML = '';
+            for (let i = 0; i < GameState.medals; i++) {
+                finalMedalsNode.innerHTML += `<span class="animate-bounce" style="animation-delay: ${i * 0.15}s;">🏆</span>`;
+            }
+            if (GameState.medals === 0) {
+                finalMedalsNode.innerHTML = '⭐️ ⭐️ ⭐️ ⭐️ ⭐️';
+            }
+
+            // Launch Confetti programmatically
+            startConfetti();
+        }
+
+        // Confetti Generator inside client
+        let confettiInterval = null;
+        function startConfetti() {
+            const container = document.getElementById('confetti-container');
+            container.innerHTML = '';
+            
+            const colors = ['#f43f5e', '#ec4899', '#8b5cf6', '#3b82f6', '#10b981', '#eab308', '#f97316'];
+            
+            if (confettiInterval) clearInterval(confettiInterval);
+            
+            confettiInterval = setInterval(() => {
+                if (document.getElementById('screen-win').classList.contains('hidden')) {
+                    clearInterval(confettiInterval);
+                    return;
+                }
+                
+                const piece = document.createElement('div');
+                piece.className = 'confetti';
+                
+                const size = Math.random() * 8 + 8;
+                piece.style.width = `${size}px`;
+                piece.style.height = `${size}px`;
+                piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '20%';
+                
+                piece.style.left = `${Math.random() * 100}%`;
+                piece.style.animationDuration = `${Math.random() * 2 + 2}s`;
+                piece.style.opacity = Math.random();
+                
+                container.appendChild(piece);
+                
+                // Auto clean-up piece
+                setTimeout(() => piece.remove(), 4000);
+            }, 100);
+        }
+
+        // Print/Save Certificate action
+        function printCertificate() {
+            SoundFX.playClick();
+            // Simple clean print interface
+            window.print();
+        }
+
+        // Initialize state check when page loads
+        window.onload = function() {
+            // Safe welcome call
+            updateMascotFace('happy', 3000);
+        };
+    </script>
+</body>
+</html>
